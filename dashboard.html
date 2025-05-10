@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HOST Dashboard</title>
+  <style>
+    body {
+      background-color: #0d1117;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+    header {
+      background-color: #161b22;
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+      border-bottom: 2px solid #30363d;
+    }
+    .container {
+      padding: 20px;
+    }
+    .guild {
+      background-color: #21262d;
+      margin: 15px auto;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 0 10px #00000055;
+    }
+    .guild img {
+      border-radius: 10px;
+      width: 64px;
+      height: 64px;
+      margin-right: 20px;
+    }
+    .guild-info {
+      flex: 1;
+      text-align: left;
+    }
+    .guild-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .btn-manage {
+      background-color: #238636;
+      padding: 10px 15px;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .btn-manage:hover {
+      background-color: #2ea043;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    HOST - لوحة التحكم
+  </header>
+  <div class="container" id="guilds">
+    <p>جاري تحميل السيرفرات...</p>
+  </div>
+
+  <script>
+    const token = localStorage.getItem("discord_token");
+
+    if (!token) {
+      document.getElementById("guilds").innerHTML = "<p>الرجاء تسجيل الدخول أولاً.</p>";
+    } else {
+      fetch("https://discord.com/api/users/@me/guilds", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!Array.isArray(data)) {
+          document.getElementById("guilds").innerHTML = "<p>فشل في جلب السيرفرات.</p>";
+          return;
+        }
+
+        document.getElementById("guilds").innerHTML = "";
+
+        data.forEach(guild => {
+          const icon = guild.icon
+            ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
+            : "https://cdn.discordapp.com/embed/avatars/0.png";
+
+          const div = document.createElement("div");
+          div.className = "guild";
+          div.innerHTML = `
+            <img src="${icon}" alt="icon">
+            <div class="guild-info">
+              <div class="guild-name">${guild.name}</div>
+              <div>ID: ${guild.id}</div>
+            </div>
+            <a class="btn-manage" href="settings.html?guild_id=${guild.id}">إدارة</a>
+          `;
+          document.getElementById("guilds").appendChild(div);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        document.getElementById("guilds").innerHTML = "<p>حدث خطأ في الاتصال بـ Discord.</p>";
+      });
+    }
+  </script>
+</body>
+</html>
