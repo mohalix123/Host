@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HOST | لوحة التحكم</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #0d1117;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    header {
+      background-color: #161b22;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      border-bottom: 1px solid #30363d;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background-color: #21262d;
+      padding: 10px;
+    }
+    nav a {
+      margin: 0 10px;
+      color: white;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+    nav a:hover {
+      background-color: #30363d;
+    }
+    section {
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .guild {
+      background-color: #21262d;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .guild img {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+    }
+    .guild-name {
+      font-size: 18px;
+      margin-left: 15px;
+      flex-grow: 1;
+    }
+    .btn {
+      background-color: #238636;
+      padding: 8px 16px;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .setting-box {
+      background-color: #1f2733;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .setting-box h3 {
+      margin-top: 0;
+      color: #58a6ff;
+    }
+    .save-btn {
+      background-color: #2ea043;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .success {
+      color: #2ea043;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>HOST - لوحة التحكم</header>
+  <nav>
+    <a href="#dashboard">السيرفرات</a>
+    <a href="#settings">إعدادات السيرفر</a>
+  </nav>
+
+  <section id="dashboard">
+    <h2>سيرفراتك</h2>
+    <div id="guilds">جارٍ التحميل...</div>
+  </section>
+
+  <section id="settings">
+    <h2>إعدادات السيرفر</h2>
+
+    <div class="setting-box">
+      <h3>الترحيب</h3>
+      <label>رسالة الترحيب: <input type="text" style="width:100%" placeholder="أهلاً بك في السيرفر!" /></label>
+    </div>
+
+    <div class="setting-box">
+      <h3>الردود التلقائية</h3>
+      <label>كلمة: <input type="text" placeholder="مثال: مرحباً" /></label><br/><br/>
+      <label>رد bot: <input type="text" placeholder="أهلاً بك!" /></label>
+    </div>
+
+    <div class="setting-box">
+      <h3>نظام الـ XP</h3>
+      <label><input type="checkbox" /> تفعيل الـ XP</label>
+    </div>
+
+    <div class="setting-box">
+      <h3>الحماية</h3>
+      <label><input type="checkbox" /> منع الروابط</label><br/>
+      <label><input type="checkbox" /> منع السبام</label>
+    </div>
+
+    <div class="setting-box">
+      <h3>اللوق</h3>
+      <label>قناة اللوق: <input type="text" placeholder="#logs" /></label>
+    </div>
+
+    <button class="save-btn" onclick="saveSettings()">حفظ الإعدادات</button>
+    <div class="success" id="saveMsg" style="display:none;">تم الحفظ بنجاح!</div>
+  </section>
+
+  <script>
+    const token = localStorage.getItem("discord_token");
+    const guildsDiv = document.getElementById("guilds");
+
+    if (!token) {
+      guildsDiv.innerHTML = "<p>يرجى تسجيل الدخول أولاً.</p>";
+    } else {
+      fetch("https://discord.com/api/users/@me/guilds", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        guildsDiv.innerHTML = "";
+        data.forEach(guild => {
+          const icon = guild.icon
+            ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
+            : "https://cdn.discordapp.com/embed/avatars/0.png";
+          const div = document.createElement("div");
+          div.className = "guild";
+          div.innerHTML = `
+            <img src="${icon}" />
+            <span class="guild-name">${guild.name}</span>
+            <button class="btn" onclick="location.href='#settings'">إدارة</button>
+          `;
+          guildsDiv.appendChild(div);
+        });
+      });
+    }
+
+    function saveSettings() {
+      document.getElementById("saveMsg").style.display = "block";
+      setTimeout(() => {
+        document.getElementById("saveMsg").style.display = "none";
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
